@@ -6,6 +6,17 @@ import torch.nn.functional as F
 from data.base_dataset import BaseDataset 
 from data.image_folder import make_dataset
 
+CAM_A_BIT_DEPTH = 12
+CAM_A_INPUT_SPATIAL_RESOLUTION = 2032
+CAM_A_INPUT_POLAR_RESOLUTION = 1
+CAM_A_INPUT_SHAPE = (CAM_A_INPUT_POLAR_RESOLUTION, CAM_A_INPUT_SPATIAL_RESOLUTION, CAM_A_INPUT_SPATIAL_RESOLUTION)
+CAM_A_UPSAMPLE_SIZE = 2048
+
+CAM_B_BIT_DEPTH = 12
+CAM_B_INPUT_SPATIAL_RESOLUTION = 353
+CAM_B_INPUT_SPECTRAL_RESOLUTION = 106
+CAM_B_INPUT_SHAPE = (CAM_B_INPUT_SPECTRAL_RESOLUTION, CAM_B_INPUT_SPATIAL_RESOLUTION, CAM_B_INPUT_SPATIAL_RESOLUTION)
+
 # -------------------------------------------------------------------------
 # Simplified Dataset
 # -------------------------------------------------------------------------
@@ -13,11 +24,6 @@ class AlignedV2Dataset(BaseDataset):
 
     """
     Paired Thorlabs–Cubert dataset loader for hyperspectral reconstruction.
-
-    - Thorlabs input: (1, 1008, 1008) or (1008, 1008)
-        -> Upsampled to (1, 1024, 1024)
-    - Cubert ground truth: (106, 187, 187)
-        -> Kept unchanged
     """
 
     def __init__(self, opt):
@@ -39,7 +45,7 @@ class AlignedV2Dataset(BaseDataset):
         """Load and preprocess a paired Thorlabs (A) and Cubert (B) image."""
         # --- Load Thorlabs input (A) ---
         A_path = self.A_paths[index % self.A_size]
-        A = io.imread(A_path).astype(np.float32)  # Shape: (5, 660, 660)
+        A = io.imread(A_path).astype(np.float32)
 
         # If grayscale (H, W), add channel dimension
         if A.ndim == 2:
@@ -48,22 +54,22 @@ class AlignedV2Dataset(BaseDataset):
         # --- Load Cubert ground truth (B) ---
         if not self.video_mode:
             B_path = self.B_paths[index % self.B_size]
-            B = io.imread(B_path).astype(np.float32)  # Shape: (106, 120, 120)
+            B = io.imread(B_path).astype(np.float32)
         else:
             B_path = 'dummy'
-            B = np.zeros((106, 187, 187), dtype=np.float32)
+            B = np.zeros(CAM_B_INPUT_SHAPE, dtype=np.float32)
 
         # --- Normalize both to [0, 1] ---
         if self.norm_bitwise:
-            A /= 4095.0
-            B /= 4095.0
+            A /= ((2**CAM_A_BIT_DEPTH) - 1)
+            B /= ((2**CAM_B_BIT_DEPTH) - 1)
         else:
             A = (A - A.min()) / (A.max() - A.min() + 1e-8)
             B = (B - B.min()) / (B.max() - B.min() + 1e-8)
 
         # --- Handle polarization (keep all or single channel) ---
         if self.polarization == -1:
-            A = A[:1, :, :] # Shape: (1, 660, 660) (0 degree pol?)
+            A = A[:1, :, :]
         else:
             raise ValueError("Polarization selection not supported for unpolarized dataset.")
 
@@ -71,17 +77,10 @@ class AlignedV2Dataset(BaseDataset):
         A = torch.from_numpy(A).float()
         B = torch.from_numpy(B).float()
 
-        # --- Upsample Thorlabs input to (1024, 1024) ---
         # Add batch dimension for interpolation: (1, C, H, W)
         A = A.unsqueeze(0)
-        A = F.interpolate(A, size=(1024, 1024), mode='bilinear', align_corners=False)
+        A = F.interpolate(A, size=(CAM_A_UPSAMPLE_SIZE, CAM_A_UPSAMPLE_SIZE), mode='bilinear', align_corners=False)
         A = A.squeeze(0)  # → (C, 1024, 1024)
-
-        # --- Final shapes ---
-        # A: (1, 1024, 1024)
-        # B: (106, 187, 187)
-        # During training, crop model output (106, 256, 256)
-        # to (106, 187, 187) before loss calculation.
 
         return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path}
 

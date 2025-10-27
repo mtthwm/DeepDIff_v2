@@ -6,6 +6,11 @@ from pytorch_msssim import ssim
 import numpy as np
 import time
 
+A_INPUT_SIZE = 2048
+B_INPUT_SIZE = 353
+
+GEN_OUT_SIZE = 512
+
 def spectral_correlation_loss(y_true, y_pred):
     """
     Compute the spectral correlation loss based on the correlation coefficient.
@@ -224,7 +229,7 @@ class Pix2Pixv2Model(BaseModel):
 
     def backward_D(self):
         # Work the discriminator at 256x256
-        self.real_A_resized = F.interpolate(self.real_A, size=(256, 256), mode='bilinear', align_corners=False)
+        self.real_A_resized = F.interpolate(self.real_A, size=(GEN_OUT_SIZE, GEN_OUT_SIZE), mode='bilinear', align_corners=False)
 
         # Split fake if NLL else use full prediction
         if self.use_nll:
@@ -238,7 +243,7 @@ class Pix2Pixv2Model(BaseModel):
         self.loss_D_fake = self.criterionGAN(pred_fake, False)
 
         # Real pair: upsample GT to 256 for the D path
-        real_B_256 = F.interpolate(self.real_B, size=(256, 256), mode='bilinear', align_corners=False)
+        real_B_256 = F.interpolate(self.real_B, size=(GEN_OUT_SIZE, GEN_OUT_SIZE), mode='bilinear', align_corners=False)
         real_AB = torch.cat((self.real_A_resized, real_B_256), 1)
         pred_real = self.netD(real_AB)
         self.loss_D_real = self.criterionGAN(pred_real, True)
@@ -249,7 +254,7 @@ class Pix2Pixv2Model(BaseModel):
 
     def backward_G(self):
         # D path uses 256x256
-        self.real_A_resized = F.interpolate(self.real_A, size=(256, 256), mode='bilinear', align_corners=False)
+        self.real_A_resized = F.interpolate(self.real_A, size=(GEN_OUT_SIZE, GEN_OUT_SIZE), mode='bilinear', align_corners=False)
 
         if self.use_nll:
             n = self.fake_B.shape[1] // 2  # 106 mean + 106 scale = 212
@@ -260,10 +265,10 @@ class Pix2Pixv2Model(BaseModel):
             pred_fake = self.netD(fake_AB)
             self.loss_G_GAN = self.criterionGAN(pred_fake, True)
 
-            # --- Center-cropped losses on 187x187 ---
-            mu_B_crop    = center_crop_to(self.mu_B, 187, 187)
-            sigma_B_crop = center_crop_to(self.sigma_B, 187, 187)
-            real_B       = self.real_B   # (B, 106, 187, 187)
+            # --- Center-cropped losses ---
+            mu_B_crop    = center_crop_to(self.mu_B, B_INPUT_SIZE, B_INPUT_SIZE)
+            sigma_B_crop = center_crop_to(self.sigma_B, B_INPUT_SIZE, B_INPUT_SIZE)
+            real_B       = self.real_B
 
             self.loss_G_L1      = self.criterionL1(mu_B_crop, real_B)
             self.loss_G_SC      = spectral_correlation_loss(real_B, mu_B_crop)
@@ -282,7 +287,7 @@ class Pix2Pixv2Model(BaseModel):
             pred_fake = self.netD(fake_AB)
             self.loss_G_GAN = self.criterionGAN(pred_fake, True)
 
-            mu_B_crop = center_crop_to(self.mu_B, 187, 187)
+            mu_B_crop = center_crop_to(self.mu_B, B_INPUT_SIZE, B_INPUT_SIZE)
             real_B    = self.real_B
 
             self.loss_G_L1      = self.criterionL1(mu_B_crop, real_B)
@@ -352,7 +357,7 @@ if __name__ == "__main__":
         init_type='normal',
         init_gain=0.02,
         gpu_ids=[],
-        netG='unet_1024_to_256'  # use new generator architecture
+        netG='unet_2048_to_512'  # use new generator architecture
     )
 
     # --- Initialize generator ---
@@ -372,7 +377,7 @@ if __name__ == "__main__":
     print(netG.__class__.__name__)
 
     # --- Fake test input ---
-    fake_input = torch.randn(1, 1, 1024, 1024)
+    fake_input = torch.randn(1, 1, A_INPUT_SIZE, A_INPUT_SIZE)
 
     with torch.no_grad():
         output = netG(fake_input)

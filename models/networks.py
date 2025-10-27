@@ -178,6 +178,8 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         net = UnetGenerator(input_nc, output_nc, 8, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
     elif netG == 'unet_1024_to_256':
         net = UnetGenerator256Out(input_nc, output_nc, 10, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
+    elif netG == 'unet_2048_to_512':
+        net = UnetGenerator512Out(input_nc, output_nc, 11, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
 
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
@@ -518,6 +520,42 @@ class UnetGenerator256Out(nn.Module):
         up_layers = [
             nn.ReLU(inplace=False),
             nn.Upsample(size=(256, 256), mode='bilinear', align_corners=False),
+            nn.Conv2d(ngf * 2, output_nc, kernel_size=3, stride=1, padding=1),
+            nn.Sigmoid()
+        ]
+        self.model.up = nn.Sequential(*up_layers)
+
+    def forward(self, x):
+        return self.model(x)
+    
+class UnetGenerator512Out(nn.Module):
+    """
+    U-Net where encoder runs on 1024x1024 input, but the OUTERMOST block upsamples to 512x512
+    and produces output_nc channels (e.g., 212). Structure mirrors existing UnetGenerator.
+    """
+
+    def __init__(self, input_nc, output_nc, num_downs=10, ngf=64, norm_layer=nn.BatchNorm2d, use_dropout=False):
+        super(UnetGenerator256Out, self).__init__()
+        # innermost
+        unet_block = UnetSkipConnectionBlock(ngf * 8, ngf * 8, input_nc=None,
+                                             submodule=None, norm_layer=norm_layer, innermost=True)
+        # middle (keep ngf*8 for depth)
+        for _ in range(num_downs - 5):
+            unet_block = UnetSkipConnectionBlock(ngf * 8, ngf * 8, input_nc=None,
+                                                 submodule=unet_block, norm_layer=norm_layer,
+                                                 use_dropout=use_dropout)
+        # decoder ladder
+        unet_block = UnetSkipConnectionBlock(ngf * 4, ngf * 8, input_nc=None, submodule=unet_block, norm_layer=norm_layer)
+        unet_block = UnetSkipConnectionBlock(ngf * 2, ngf * 4, input_nc=None, submodule=unet_block, norm_layer=norm_layer)
+        unet_block = UnetSkipConnectionBlock(ngf,       ngf * 2, input_nc=None, submodule=unet_block, norm_layer=norm_layer)
+
+        self.model = UnetSkipConnectionBlock(output_nc, ngf, input_nc=input_nc,
+                                             submodule=unet_block, outermost=True,
+                                             norm_layer=norm_layer)
+
+        up_layers = [
+            nn.ReLU(inplace=False),
+            nn.Upsample(size=(512, 512), mode='bilinear', align_corners=False),
             nn.Conv2d(ngf * 2, output_nc, kernel_size=3, stride=1, padding=1),
             nn.Sigmoid()
         ]
