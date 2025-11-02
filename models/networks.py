@@ -535,7 +535,7 @@ class UnetGenerator512Out(nn.Module):
     """
 
     def __init__(self, input_nc, output_nc, num_downs=10, ngf=64, norm_layer=nn.BatchNorm2d, use_dropout=False):
-        super(UnetGenerator256Out, self).__init__()
+        super(UnetGenerator512Out, self).__init__()
         # innermost
         unet_block = UnetSkipConnectionBlock(ngf * 8, ngf * 8, input_nc=None,
                                              submodule=None, norm_layer=norm_layer, innermost=True)
