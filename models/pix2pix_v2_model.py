@@ -7,7 +7,7 @@ import numpy as np
 import time
 
 A_INPUT_SIZE = 2048
-B_INPUT_SIZE = 353
+B_INPUT_SIZE = 352
 
 GEN_OUT_SIZE = 512
 
