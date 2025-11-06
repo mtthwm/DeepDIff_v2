@@ -83,14 +83,14 @@ def main():
             ckpt_dir = os.path.join(ds['checkpoints_dir'], f"pol{pol}")
 
             # 1. Train
-            # train_cmd = [
-            #     'python', TRAIN_SCRIPT,
-            #     '--dataroot', ds['dataroot'],
-            #     '--name', model_name,
-            #     '--checkpoints_dir', ckpt_dir,
-            #     '--polarization', str(pol),
-            # ] + TRAIN_OPTS
-            # run_cmd(train_cmd)
+            train_cmd = [
+                'python', TRAIN_SCRIPT,
+                '--dataroot', ds['dataroot'],
+                '--name', model_name,
+                '--checkpoints_dir', ckpt_dir,
+                '--polarization', str(pol),
+            ] + TRAIN_OPTS
+            run_cmd(train_cmd)
 
             # 2. Test
             test_cmd = [
