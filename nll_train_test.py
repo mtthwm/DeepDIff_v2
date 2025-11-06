@@ -88,7 +88,7 @@ def main():
                 '--dataroot', ds['dataroot'],
                 '--name', model_name,
                 '--checkpoints_dir', ckpt_dir,
-                '--polarization', str(pol),
+                # '--polarization', str(pol),
             ] + TRAIN_OPTS
             run_cmd(train_cmd)
 
@@ -98,7 +98,7 @@ def main():
                 '--dataroot', ds['dataroot'],
                 '--name', model_name,
                 '--checkpoints_dir', ckpt_dir,
-                '--polarization', str(pol),
+                # '--polarization', str(pol),
             ] + TEST_OPTS
             run_cmd(test_cmd)
 
