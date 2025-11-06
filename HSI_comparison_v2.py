@@ -12,10 +12,10 @@ import re
 # --- CONFIGURATION ------------------------------------------
 # ------------------------------------------------------------
 # Hardcode your image directory here:
-IMAGE_DIR = r"Z:\Probabalistic_UNET\results\banknotes_augmented_pol0\validation_latest\images"   
-NUM_IMAGES = 176
+IMAGE_DIR = r"/home/matthew-morales/Downloads/images"
+NUM_IMAGES = 7
 METRICS_CSV = os.path.join(IMAGE_DIR, "metrics.csv")
-CROP_SIZE = 120
+CROP_SIZE = 352
 
 # ------------------------------------------------------------
 # --- HELPER FUNCTIONS ---------------------------------------

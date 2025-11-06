@@ -5,36 +5,11 @@ import pandas as pd
 import argparse
 
 DATASETS = [
-    # {
-    #     'name': 'banknotes_augmented',
-    #     'dataroot': '/scratch/general/nfs1/u1528328/img_dir/mkrauss/banknotes',
-    #     'checkpoints_dir': '/scratch/general/nfs1/u1528328/model_dir/nll_models/checkpoints_banknotes_augmented_prob',
-    # },
-    # {
-    #     'name': 'william_summer_augmented',
-    #     'dataroot': '/scratch/general/nfs1/u1528328/img_dir/mkrauss/William_Summer',
-    #     'checkpoints_dir': '/scratch/general/nfs1/u1528328/model_dir/nll_models/checkpoints_william_summer_augmented_prob',
-    # },
-    # {
-    #     'name': 'produce_augmented',
-    #     'dataroot': '/scratch/general/nfs1/u1528328/img_dir/mkrauss/produce',
-    #     'checkpoints_dir': '/scratch/general/nfs1/u1528328/model_dir/Diff_nll_modelsmodels/checkpoints_produce_augmented_prob',
-    # },
     {
-        'name': 'invertebrates_augmented',
-        'dataroot': '/scratch/general/nfs1/u1528328/img_dir/mkrauss/invertebrates',
-        'checkpoints_dir': '/scratch/general/nfs1/u1528328/model_dir/nll_models/checkpoints_invertebrates_augmented_prob',
-    },
-    # {
-    #     'name': 'rescharts_augmented',
-    #     'dataroot': '/scratch/general/nfs1/u1528328/img_dir/mkrauss/rescharts',
-    #     'checkpoints_dir': '/scratch/general/nfs1/u1528328/model_dir/nll_models/checkpoints_rescharts_augmented_prob',
-    # },
-    # {
-    #     'name': 'cumulative_augmented',
-    #     'dataroot': '/scratch/general/nfs1/u1528328/img_dir/mkrauss/produce',
-    #     'checkpoints_dir': '/scratch/general/nfs1/u1528328/model_dir/nll_models/checkpoints_cumulative_augmented_prob',
-    # },
+        'name': 'bronch_lcd',
+        'dataroot': '/scratch/general/nfs1/u1344001/data/Exp3/bronch_lcd',
+        'checkpoints_dir': '/scratch/general/nfs1/u1344001/data/Exp3/checkpoints',
+    }
 ]
 
 POL_ANGLES = [0]
@@ -43,17 +18,17 @@ TEST_SCRIPT = 'test.py'
 EVAL_SCRIPT = 'HSI_comparison_probabalistic.py'
 PER_IMAGE_SCRIPT = 'HSI_comparison_probabalistic_per_image.py'
 RESULTS_DIR = 'results'  # Directory where test images are saved
-METRICS_DIR = '/uufs/chpc.utah.edu/common/home/u1528328/Probabalistic_UNET/metrics_prob_nll' 
+METRICS_DIR = '/uufs/chpc.utah.edu/common/home/u1344001/Exp3/metrics_prob_nll' 
 
 # Fixed options for training and testing, matching banknotes_training.sh
 TRAIN_OPTS = [
-    '--model', 'pix2pix',
+    '--model', 'pix2pix_v2',
     '--input_nc', '1',
     '--output_nc', '212',
     '--n_epochs', '10',
     '--n_epochs_decay', '10',
     '--save_epoch_freq', '5',
-    '--netG', 'unet_1024',
+    '--netG', 'unet_2048_to_512',
     '--netG_reps', '2',
     '--netD_mult', '0',
     '--norm_bitwise',
@@ -63,10 +38,10 @@ TRAIN_OPTS = [
     '--no_dropout'          # turn dropout off
 ]
 TEST_OPTS = [
-    '--model', 'pix2pix',
+    '--model', 'pix2pix_v2',
     '--input_nc', '1',
     '--output_nc', '212',
-    '--netG', 'unet_1024',
+    '--netG', 'unet_2048_to_512',
     '--netG_reps', '2',
     '--netD_mult', '0',
     '--norm_bitwise',
