@@ -64,7 +64,8 @@ def run_cmd(cmd, label=None):
         cmd = [sys.executable, '-u'] + cmd[1:]
     elif len(cmd) > 0 and cmd[0] in ('python', 'python3'):
         cmd = [sys.executable, '-u'] + cmd[1:]    
-        prefix = f"[{label}] " if label else ""
+    
+    prefix = f"[{label}] " if label else ""
     print(f"{prefix}Running: {' '.join(str(x) for x in cmd)}")    
     env = os.environ.copy()
     env['PYTHONUNBUFFERED'] = '1'
