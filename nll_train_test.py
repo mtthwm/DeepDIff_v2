@@ -1,4 +1,4 @@
-import os
+import os, sys
 import subprocess
 import shutil
 import pandas as pd
@@ -12,7 +12,7 @@ DATASETS = [
     }
 ]
 
-POL_ANGLES = [0]
+POL_ANGLES = [-1]
 TRAIN_SCRIPT = 'train.py'
 TEST_SCRIPT = 'test.py'
 EVAL_SCRIPT = 'HSI_comparison_probabalistic.py'
@@ -53,13 +53,33 @@ TEST_OPTS = [
 ]
 
 # Helper to run a command and print output
-def run_cmd(cmd):
-    print('Running:', ' '.join(str(x) for x in cmd))
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    print(result.stdout)
-    if result.returncode != 0:
-        print(result.stderr)
-        raise RuntimeError(f"Command failed: {' '.join(cmd)}")
+def run_cmd(cmd, label=None):
+    """Run a command and stream its stdout/stderr in real time.
+    - Forces unbuffered Python (-u) using the current interpreter (sys.executable).
+    - Prefixes each printed line with [label] when provided.
+    """
+    # Normalize command to use the current Python interpreter unbuffered when it calls 'python'
+    cmd = list(cmd)
+    if len(cmd) > 0 and os.path.basename(cmd[0]).startswith('python'):
+        cmd = [sys.executable, '-u'] + cmd[1:]
+    elif len(cmd) > 0 and cmd[0] in ('python', 'python3'):
+        cmd = [sys.executable, '-u'] + cmd[1:]    
+        prefix = f"[{label}] " if label else ""
+    print(f"{prefix}Running: {' '.join(str(x) for x in cmd)}")    
+    env = os.environ.copy()
+    env['PYTHONUNBUFFERED'] = '1'
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, env=env)    
+    try:
+        for line in iter(process.stdout.readline, ''):
+            if not line:
+                break
+            print(f"{prefix}{line.rstrip()}")
+    finally:
+        if process.stdout:
+            process.stdout.close()
+    return_code = process.wait()
+    if return_code != 0:
+        raise RuntimeError(f"{prefix}Command failed (exit {return_code}): {' '.join(cmd)}")
 
 def main():
     os.makedirs(METRICS_DIR, exist_ok=True)
@@ -88,7 +108,7 @@ def main():
                 '--dataroot', ds['dataroot'],
                 '--name', model_name,
                 '--checkpoints_dir', ckpt_dir,
-                # '--polarization', str(pol),
+                '--polarization', str(pol),
             ] + TRAIN_OPTS
             run_cmd(train_cmd)
 
@@ -98,7 +118,7 @@ def main():
                 '--dataroot', ds['dataroot'],
                 '--name', model_name,
                 '--checkpoints_dir', ckpt_dir,
-                # '--polarization', str(pol),
+                '--polarization', str(pol),
             ] + TEST_OPTS
             run_cmd(test_cmd)
 
