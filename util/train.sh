@@ -18,9 +18,9 @@
 
 #SBATCH --time=12:00:00
 
-#SBATCH --job-name=bronch_lcd_11142025-1526_resume
+#SBATCH --job-name=morales_bronch_lcd_11142025-1526_resume
 
-#SBATCH --output=bronch_lcd_11142025-1526_resume.log
+#SBATCH --output=morales_bronch_lcd_11142025-1526_resume.log
 
 #SBATCH --mail-type=FAIL,BEGIN,END
 
