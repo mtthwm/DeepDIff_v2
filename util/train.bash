@@ -26,6 +26,8 @@
 
 #SBATCH --mail-user=u1344001@umail.utah.edu
 
+## Load Miniforge
+module load miniforge3/24.9.0
 
 
 ## Activate the conda environment
