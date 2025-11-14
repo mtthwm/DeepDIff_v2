@@ -35,7 +35,8 @@ TRAIN_OPTS = [
     '--use_nll',
     '--lambda_l1', '0',
     '--norm', 'instance',
-    '--no_dropout'          # turn dropout off
+    '--no_dropout',          # turn dropout off
+    '--continue_train'
 ]
 TEST_OPTS = [
     '--model', 'pix2pix_v2',
