@@ -21,9 +21,11 @@ from matplotlib.widgets import Button, Slider
 from skimage.metrics import structural_similarity as ssim
 from pathlib import Path
 
+from RGB.HSI2RGB import HSI2RGB
+
 # ---------------------------- Config ----------------------------
-IMAGE_DIR = r"Z:\Probabalistic_UNET\results\thorlabs_cubert_v2\validation_latest\images"
-CROP_SIZE = 187
+IMAGE_DIR = r"/home/matthew-morales/Documents/EndoDBV1 Results 11-15-2025/bronch_lcd_pol-1/validation_latest/images"
+CROP_SIZE = 352
 NUM_BANDS = 106
 WAVELENGTHS = np.linspace(450, 850, NUM_BANDS)
 
@@ -49,6 +51,15 @@ def compute_metrics(gt, recon):
     except Exception:
         s = np.nan
     return mae, mse, s, psnr
+
+def convert_to_rgb(hsi_image):
+        """Convert hyperspectral data to RGB using HSI2RGB."""
+        # Reshape to (height, width, bands) for compatibility
+        hsi_image = hsi_image.transpose(1, 2, 0)        # Define wavelengths
+        wl = np.linspace(450, 850, hsi_image.shape[-1])        # Reshape for HSI2RGB processing
+        data = np.reshape(hsi_image, (-1, hsi_image.shape[-1]))        # Convert to RGB
+        rgb_image = HSI2RGB(wl, data, hsi_image.shape[0], hsi_image.shape[1], 65, 0.002)
+        return np.clip(rgb_image, 0, 1)
 
 # ---------------------------- Viewer ----------------------------
 class HSIViewer:
@@ -121,6 +132,7 @@ class HSIViewer:
         self.gt = center_crop(gt, CROP_SIZE, CROP_SIZE)
         self.mu = center_crop(mu, CROP_SIZE, CROP_SIZE)
         self.sigma = center_crop(sigma, CROP_SIZE, CROP_SIZE)
+        self.rgb_data = convert_to_rgb(self.gt)
 
     # ---------------- Update images ----------------
     def update_images(self):
@@ -131,7 +143,7 @@ class HSIViewer:
         mae, mse, s, psnr = compute_metrics(gt, mu)
 
         panels = [
-            (self.ax_imgs[0], gt, f"Ground Truth\n({wl:.0f} nm)", "viridis"),
+            (self.ax_imgs[0], self.rgb_data, f"Approximation of original color\n({wl:.0f} nm)", "grey"),
             (self.ax_imgs[1], mu, "Reconstruction", "viridis"),
             (self.ax_imgs[2], err, "Absolute Error", "hot"),
             (self.ax_imgs[3], sig, "Uncertainty (σ)", "viridis"),
