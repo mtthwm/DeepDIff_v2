@@ -16,7 +16,7 @@
 
 #SBATCH --gres=gpu:1
 
-#SBATCH --time=12:00:00
+#SBATCH --time=36:00:00
 
 #SBATCH --job-name=morales_bronch_lcd_11142025-1526_resume
 

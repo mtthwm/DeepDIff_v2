@@ -6,9 +6,9 @@ import argparse
 
 DATASETS = [
     {
-        'name': 'macbeth_lcd',
-        'dataroot': '/scratch/general/nfs1/u1344001/data/Exp7/processed',
-        'checkpoints_dir': '/scratch/general/nfs1/u1344001/data/Exp7/checkpoints',
+        'name': 'bronch_lcd',
+        'dataroot': '/scratch/general/nfs1/u1344001/data/Exp3/macbeth',
+        'checkpoints_dir': '/scratch/general/nfs1/u1344001/data/Exp3/checkpoints',
     }
 ]
 
@@ -17,7 +17,7 @@ TRAIN_SCRIPT = 'train.py'
 TEST_SCRIPT = 'test.py'
 EVAL_SCRIPT = 'HSI_comparison_probabalistic.py'
 PER_IMAGE_SCRIPT = 'HSI_comparison_probabalistic_per_image.py'
-RESULTS_DIR = '/scratch/general/nfs1/u1344001/data/Exp7/results'  # Directory where test images are saved
+RESULTS_DIR = '/scratch/general/nfs1/u1344001/data/Exp3MacbethResults'  # Directory where test images are saved
 METRICS_DIR = '/uufs/chpc.utah.edu/common/home/u1344001/Exp3/metrics_prob_nll' 
 
 # Fixed options for training and testing, matching banknotes_training.sh
@@ -36,6 +36,7 @@ TRAIN_OPTS = [
     '--lambda_l1', '0',
     '--norm', 'instance',
     '--no_dropout',          # turn dropout off
+    '--continue_train'
 ]
 TEST_OPTS = [
     '--model', 'pix2pix_v2',
@@ -103,15 +104,15 @@ def main():
             model_name = f"{ds['name']}_pol{pol}"
             ckpt_dir = os.path.join(ds['checkpoints_dir'], f"pol{pol}")
 
-            # 1. Train
-            train_cmd = [
-                'python', TRAIN_SCRIPT,
-                '--dataroot', ds['dataroot'],
-                '--name', model_name,
-                '--checkpoints_dir', ckpt_dir,
-                '--polarization', str(pol),
-            ] + TRAIN_OPTS
-            run_cmd(train_cmd)
+            # # 1. Train
+            # train_cmd = [
+            #     'python', TRAIN_SCRIPT,
+            #     '--dataroot', ds['dataroot'],
+            #     '--name', model_name,
+            #     '--checkpoints_dir', ckpt_dir,
+            #     '--polarization', str(pol),
+            # ] + TRAIN_OPTS
+            # run_cmd(train_cmd)
 
             # 2. Test
             test_cmd = [
@@ -123,22 +124,22 @@ def main():
             ] + TEST_OPTS
             run_cmd(test_cmd)
 
-            # 3. Evaluate
-            eval_img_dir = os.path.join(RESULTS_DIR, model_name, 'validation_latest', 'images')
-            # Count number of images for --num_images
-            num_images = 0
-            if os.path.exists(eval_img_dir):
-                num_images = len([f for f in os.listdir(eval_img_dir) if f.startswith('cb_raw_') and f.endswith('.tif')])
-            # Write metrics CSV outside of results folder to avoid deletion
-            metrics_csv = os.path.join(METRICS_DIR, f'metrics_prob_{model_name}.csv')
-            print(f"Writing metrics to: {metrics_csv}")
-            eval_cmd = [
-                'python', EVAL_SCRIPT,
-                '--results_dir', eval_img_dir,
-                '--num_images', str(num_images if num_images > 0 else 50),
-                '--metrics_csv', metrics_csv
-            ]
-            run_cmd(eval_cmd)
+            # # 3. Evaluate
+            # eval_img_dir = os.path.join(RESULTS_DIR, model_name, 'validation_latest', 'images')
+            # # Count number of images for --num_images
+            # num_images = 0
+            # if os.path.exists(eval_img_dir):
+            #     num_images = len([f for f in os.listdir(eval_img_dir) if f.startswith('cb_raw_') and f.endswith('.tif')])
+            # # Write metrics CSV outside of results folder to avoid deletion
+            # metrics_csv = os.path.join(METRICS_DIR, f'metrics_prob_{model_name}.csv')
+            # print(f"Writing metrics to: {metrics_csv}")
+            # eval_cmd = [
+            #     'python', EVAL_SCRIPT,
+            #     '--results_dir', eval_img_dir,
+            #     '--num_images', str(num_images if num_images > 0 else 50),
+            #     '--metrics_csv', metrics_csv
+            # ]
+            # run_cmd(eval_cmd)
 
 if __name__ == "__main__":
     main()
