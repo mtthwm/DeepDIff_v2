@@ -7,7 +7,7 @@ import argparse
 DATASETS = [
     {
         'name': 'macbeth_lcd',
-        'dataroot': '/scratch/general/nfs1/u1344001/data/Exp7/processed',
+        'dataroot': '/scratch/general/nfs1/u1344001/data/Exp7/macbeth_lcd',
         'checkpoints_dir': '/scratch/general/nfs1/u1344001/data/Exp7/checkpoints',
     }
 ]
@@ -18,7 +18,7 @@ TEST_SCRIPT = 'test.py'
 EVAL_SCRIPT = 'HSI_comparison_probabalistic.py'
 PER_IMAGE_SCRIPT = 'HSI_comparison_probabalistic_per_image.py'
 RESULTS_DIR = '/scratch/general/nfs1/u1344001/data/Exp7/results'  # Directory where test images are saved
-METRICS_DIR = '/uufs/chpc.utah.edu/common/home/u1344001/Exp3/metrics_prob_nll' 
+METRICS_DIR = '/uufs/chpc.utah.edu/common/home/u1344001/Exp7/metrics_prob_nll' 
 
 # Fixed options for training and testing, matching banknotes_training.sh
 TRAIN_OPTS = [
