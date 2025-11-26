@@ -63,7 +63,7 @@ python test.py \
     --netD_mult 0 \
     --norm_bitwise \
     --use_nll \
-    --lamda_l1 0 \
+    --lambda_l1 0 \
     --norm instance \
     --no_dropout \
     --eval
@@ -87,7 +87,7 @@ python test.py \
     --netD_mult 0 \
     --norm_bitwise \
     --use_nll \
-    --lamda_l1 0 \
+    --lambda_l1 0 \
     --norm instance \
     --no_dropout \
     --eval
