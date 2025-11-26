@@ -18,9 +18,11 @@
 
 #SBATCH --time=2:00:00
 
-#SBATCH --job-name=morales_macbeth_and_bronch_model_verif_11262025
+#SBATCH --job-name=morales_macbeth_and_bronch_model_verif_11262025_2
 
-#SBATCH --output=morales_macbeth_and_bronch_model_verif_11262025.log
+#SBATCH -o slurmjob-%j.out-%N
+
+#SBATCH -e slurmjob-%j.error-%N
 
 #SBATCH --mail-type=FAIL,BEGIN,END
 

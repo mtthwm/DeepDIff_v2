@@ -20,7 +20,9 @@
 
 #SBATCH --job-name=morales_macbeth_lcd_11212025
 
-#SBATCH --output=morales_macbeth_lcd_11212025.log
+#SBATCH -o slurmjob-%j.out-%N
+
+#SBATCH -e slurmjob-%j.error-%N
 
 #SBATCH --mail-type=FAIL,BEGIN,END
 
