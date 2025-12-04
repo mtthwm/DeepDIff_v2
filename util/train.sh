@@ -43,7 +43,7 @@ source activate /uufs/chpc.utah.edu/common/home/u1344001/BICEPS_HSI_2025/hsp_env
 cd /uufs/chpc.utah.edu/common/home/u1344001/BICEPS_HSI_2025/DeepDIff_v2
 
 ## Split files
-python ../train_test_split.py
+python ../train_test_split_base_img.py
 
 ## Run the training script
 
