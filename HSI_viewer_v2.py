@@ -24,7 +24,7 @@ from pathlib import Path
 from RGB.HSI2RGB import HSI2RGB
 
 # ---------------------------- Config ----------------------------
-IMAGE_DIR = r"/home/matthew-morales/Documents/MacbethLCD Results 11-24-2025/images"
+IMAGE_DIR = r"/home/matthew-morales/Documents/EndoDBV1 Results 11-15-2025/physical_verif/images"
 CROP_SIZE = 352
 NUM_BANDS = 106
 WAVELENGTHS = np.linspace(450, 850, NUM_BANDS)

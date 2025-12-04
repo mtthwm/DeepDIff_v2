@@ -6,9 +6,9 @@ import argparse
 
 DATASETS = [
     {
-        'name': 'macbeth_lcd',
-        'dataroot': '/scratch/general/nfs1/u1344001/data/Exp7/macbeth_lcd',
-        'checkpoints_dir': '/scratch/general/nfs1/u1344001/data/Exp7/checkpoints',
+        'name': 'meaty_db',
+        'dataroot': '/scratch/general/nfs1/u1344001/data/MeatyDB',
+        'checkpoints_dir': '/scratch/general/nfs1/u1344001/data/MeatyDB/checkpoints',
     }
 ]
 

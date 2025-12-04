@@ -18,7 +18,7 @@
 
 #SBATCH --time=36:00:00
 
-#SBATCH --job-name=morales_macbeth_lcd_11212025
+#SBATCH --job-name=morales-meat-db-12042025
 
 #SBATCH -o slurmjob-%j.out-%N
 
@@ -42,7 +42,8 @@ source activate /uufs/chpc.utah.edu/common/home/u1344001/BICEPS_HSI_2025/hsp_env
 
 cd /uufs/chpc.utah.edu/common/home/u1344001/BICEPS_HSI_2025/DeepDIff_v2
 
-
+## Split files
+python ../train_test_split.py
 
 ## Run the training script
 

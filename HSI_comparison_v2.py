@@ -12,7 +12,7 @@ import re
 # --- CONFIGURATION ------------------------------------------
 # ------------------------------------------------------------
 # Hardcode your image directory here:
-IMAGE_DIR = r"/home/matthew-morales/Documents/MacbethLCD Results 11-24-2025/images"
+IMAGE_DIR = r"/home/matthew-morales/Documents/MacbethLCD Results 11-24-2025/physical_verif/images"
 NUM_IMAGES = 175
 METRICS_CSV = os.path.join(IMAGE_DIR, "../metrics.csv")
 CROP_SIZE = 352
